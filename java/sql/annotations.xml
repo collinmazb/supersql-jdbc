@@ -1,0 +1,8 @@
+<root>
+    <item name='java.sql.NClob'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.sql.SQLFeatureNotSupportedException'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>
