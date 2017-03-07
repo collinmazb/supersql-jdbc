@@ -113,9 +113,10 @@ exception SupersqlException {
 
 service SupersqlConnectionService {
 
-   i32 createLink(1:string driverurl, 2:string linkname, 3:string username, 4:string password),
-   string useLink(1:string linkName),
-   list<string> showLinks(),
+   i32 createLink(1:i32 id, 2:string driverurl, 3:string linkname, 4:string username, 5:string password),
+   string useLink(1:i32 id, 2:string linkName),
+   list<string> showLinks(1:i32 id),
+   i32 getId(),
 
    SupersqlConnection createConnection(1:string url, 2:map<string,string> properties),
    
@@ -153,6 +154,7 @@ service SupersqlConnectionService {
    
    void statement_close(1:SupersqlStatement statement) throws (1:SupersqlException ouch)
    bool statement_execute(1:SupersqlStatement statement, 2:string sql) throws (1:SupersqlException ouch)
+   bool statement_executeupdate(1:SupersqlStatement statement, 2:string sql) throws (1:SupersqlException ouch)
    SupersqlResultSet statement_executeQuery(1:SupersqlStatement statement, 2:string sql) throws (1:SupersqlException ouch)
    SupersqlResultSet statement_getResultSet(1:SupersqlStatement statement) throws (1:SupersqlException ouch)
    i32 statement_getUpdateCount(1:SupersqlStatement statement),

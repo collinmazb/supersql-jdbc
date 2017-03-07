@@ -28,6 +28,35 @@ public class SSqlConnection implements Connection{
     private String currentLinkName = null;
     private Map<String, LinkInfo> allLinks = new HashMap<String, LinkInfo>(10);
     private SupersqlConnectionService.Client client = null;
+    private Conid2CurrentLink conid2CurrentLink = null;
+
+    class Conid2CurrentLink{
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public void setCurrentLink(String currentLink) {
+            this.currentLink = currentLink;
+        }
+
+        public String getCurrentLink() {
+            return currentLink;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        private int id;
+        private String currentLink;
+        public Conid2CurrentLink(int id, String currentLink){
+
+            this.id = id;
+            this.currentLink = currentLink;
+        }
+
+    }
 
     public SSqlConnection(URI uri, String user){
 
@@ -38,10 +67,13 @@ public class SSqlConnection implements Connection{
         try {
             TTransport transport = new TSocket("localhost", 7911);
             transport.open();
-            // 设置传输协议为 TBinaryProtocol
             TProtocol protocol = new TBinaryProtocol(transport);
            client = new SupersqlConnectionService.Client(protocol);
+           SupersqlConnection supersqlConnection = client.createConnection(null,null);
+           conid2CurrentLink = new Conid2CurrentLink(supersqlConnection.getId(), null);
         } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
             e.printStackTrace();
         }
     }
@@ -50,7 +82,7 @@ public class SSqlConnection implements Connection{
 
         List<String> links = null;
         try {
-            links = client.showLinks();
+            links = client.showLinks(conid2CurrentLink.getId());
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -60,7 +92,7 @@ public class SSqlConnection implements Connection{
     public Connection createLink(String driverJdbcUrl, String linkName, String user, String pwd){
 
         try {
-            client.createLink(driverJdbcUrl,linkName, user,pwd);
+            client.createLink(conid2CurrentLink.getId(), driverJdbcUrl,linkName, user,pwd);
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -71,14 +103,15 @@ public class SSqlConnection implements Connection{
     public Statement createStatement() throws SQLException {
 
 
+        SupersqlStatement supersqlStatement = null;
         try {
-            SupersqlConnection supersqlConnection = new SupersqlConnection(1);
-            SupersqlStatement supersqlStatement = client.createStatement(supersqlConnection);
+            SupersqlConnection supersqlConnection = new SupersqlConnection(conid2CurrentLink.getId());
+            supersqlStatement = client.createStatement(supersqlConnection);
             System.out.println(supersqlStatement.getId() + " " + supersqlStatement.getSql());
         } catch (TException e) {
             e.printStackTrace();
         }
-        return new SSqlStatement(this.client);
+        return new SSqlStatement(this.client, supersqlStatement);
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
@@ -297,15 +330,15 @@ public class SSqlConnection implements Connection{
         return false;
     }
 
-    public void usingLink(String usingLinkStr) {
+    public String usingLink(String usingLinkStr) {
 
+        String currentLinkName = null;
         try {
-            client.useLink(usingLinkStr);
+            currentLinkName = client.useLink(this.conid2CurrentLink.getId(),usingLinkStr);
         } catch (TException e) {
             e.printStackTrace();
         }
-//        currentLink = allLinks.get(usingLinkStr).getCon();
-//        currentLinkName = usingLinkStr;
+        return currentLinkName;
     }
 
     public Connection getCurrentLink() {

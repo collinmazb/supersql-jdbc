@@ -2,6 +2,7 @@ package com.tencent.supersql.jdbc;
 
 import com.tencent.supersql.gen.SupersqlConnectionService;
 import com.tencent.supersql.gen.SupersqlResultSet;
+import com.tencent.supersql.gen.SupersqlStatement;
 import org.apache.thrift.TException;
 
 import java.sql.*;
@@ -12,18 +13,20 @@ import java.sql.*;
 public class SSqlStatement implements Statement{
 
     private SupersqlConnectionService.Client client = null;
+    private SupersqlStatement supersqlStatement = null;
 
 
-    public SSqlStatement(SupersqlConnectionService.Client client){
+    public SSqlStatement(SupersqlConnectionService.Client client, SupersqlStatement supersqlStatement){
 
         this.client = client;
+        this.supersqlStatement = supersqlStatement;
     }
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
 
         SupersqlResultSet supersqlResultSet = null;
         try {
-            supersqlResultSet = this.client.statement_executeQuery(null, sql);
+            supersqlResultSet = this.client.statement_executeQuery(supersqlStatement, sql);
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -34,6 +37,13 @@ public class SSqlStatement implements Statement{
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
+
+        try {
+            client.statement_executeupdate(supersqlStatement, sql);
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+
         return 0;
     }
 

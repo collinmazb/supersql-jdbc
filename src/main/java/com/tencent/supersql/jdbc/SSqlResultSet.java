@@ -517,7 +517,7 @@ public class SSqlResultSet implements ResultSet {
 
     @Override
     public int getRow() throws SQLException {
-        return 0;
+        return this.rowIndex;
     }
 
     @Override
