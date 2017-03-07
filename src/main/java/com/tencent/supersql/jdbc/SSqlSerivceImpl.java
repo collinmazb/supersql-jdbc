@@ -24,6 +24,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     Logger logger  =  Logger.getLogger(SSqlSerivceImpl.class);
     private Map<String, Connection> allLinks = new HashMap<String, Connection>();
     private Connection currentLink;
+    private String currentDatabase;
     private Map<Integer, ConnectionInfo> id2Links = new HashMap<>();
     private String currentLinkName;
     private Statement currentStatement;
@@ -154,8 +155,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     }
 
     @Override
-    public SupersqlConnection createConnection(String url, Map<String, String> properties) throws TException {
+    public SupersqlConnection createConnection(String database, Map<String, String> properties) throws TException {
 
+        currentDatabase = database;
         int conId = this.id.incrementAndGet();
         return new SupersqlConnection(conId);
     }
