@@ -279,10 +279,14 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public boolean statement_executeupdate(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
-        Statement stat = id2Links.get(statement.getId()).getStatement();
+        Statement driverStatement = id2Links.get(statement.getId()).getStatement();
+        if(driverStatement == null){
+
+
+        }
         String driverSql = parseSql(sql);
         try {
-            stat.executeUpdate(driverSql);
+            driverStatement.executeUpdate(driverSql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
