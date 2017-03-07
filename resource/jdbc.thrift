@@ -118,7 +118,7 @@ service SupersqlConnectionService {
    list<string> showLinks(1:i32 id),
    i32 getId(),
 
-   SupersqlConnection createConnection(1:string url, 2:map<string,string> properties),
+   SupersqlConnection createConnection(1:string database, 2:map<string,string> properties),
    
    SupersqlStatement createStatement(1:SupersqlConnection connection),
    

@@ -84,6 +84,25 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
     }
 
+    class ParsedDriverSql{
+
+        public String getDriverName() {
+            return driverName;
+        }
+
+        public String getParsedDriverSql() {
+            return parsedDriverSql;
+        }
+
+        private String driverName;
+        private String parsedDriverSql;
+
+        public ParsedDriverSql(String driverName, String parsedDriverSql) {
+            this.driverName = driverName;
+            this.parsedDriverSql = parsedDriverSql;
+        }
+    }
+
     @Override
     public int createLink(int id, String driverurl, String linkName, String username, String password) throws TException {
 
@@ -284,9 +303,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
 
         }
-        String driverSql = parseSql(sql);
+        ParsedDriverSql driverSql = parseSql(sql);
         try {
-            driverStatement.executeUpdate(driverSql);
+            driverStatement.executeUpdate(driverSql.getParsedDriverSql());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -294,7 +313,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         return true;
     }
 
-    private String parseSql(String sql){
+    private ParsedDriverSql parseSql(String sql){
 
         String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
         optionsStr = optionsStr.substring(0,optionsStr.length()-1);
@@ -314,7 +333,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             ssOptions.put(SupersqlOptionKey.DATABASE, "default");
         }
 
-        return null;
+        return new ParsedDriverSql("presto", "create table");
     }
 
     @Override
