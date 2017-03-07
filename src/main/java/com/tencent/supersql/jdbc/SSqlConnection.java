@@ -67,7 +67,7 @@ public class SSqlConnection implements Connection{
 
         try {
 
-            String databaseName = url.substring(url.lastIndexOf("/"), url.length());
+            String databaseName = url.substring(url.lastIndexOf("/")+1, url.length());
             TTransport transport = new TSocket("localhost", 7911);
             transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);

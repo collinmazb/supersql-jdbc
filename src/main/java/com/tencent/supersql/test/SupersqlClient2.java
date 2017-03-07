@@ -33,6 +33,8 @@ public class SupersqlClient2 {
 
         statement.executeUpdate("create table users() ssoptions(model columnstore, realtime false, transaction true)");
 
+        statement.executeQuery("select * from nation");
+
 //        ssqlConnection.createLink("jdbc:presto://10.70.79.88:8081/mysql/tpch","link2presto","test", "");
     }
 }

@@ -12,7 +12,7 @@ import java.util.Map;
 public class SSMetaData {
 
 
-    class DriverInfo{
+    static class DriverInfo{
 
         private String driverName;
         private String driverDB;
@@ -25,11 +25,17 @@ public class SSMetaData {
         }
     }
 
-    private static Map<String, List<DriverInfo>> map = new HashedMap();
+    private static Map<String, List<DriverInfo>> driverInfoMap = new HashedMap();
     public static void initSSMetaData(){
 
         String superSqlDefault = "Default";
         List<DriverInfo> driverInfos = new ArrayList<>();
-        map.put(superSqlDefault, driverInfos);
+        driverInfoMap.put(superSqlDefault, driverInfos);
+    }
+
+    public static void updateSSMetaData(String driverName, String database, String tableName){
+
+        List<DriverInfo> driverInfos = driverInfoMap.get(driverName);
+        driverInfos.add(new DriverInfo(driverName,database,tableName));
     }
 }

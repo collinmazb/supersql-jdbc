@@ -6,6 +6,7 @@ package com.tencent.supersql.jdbc;
 
 import com.tencent.supersql.gen.*;
 import com.tencent.supersql.thrift.ConnectionPool;
+import com.tencent.supersql.thrift.SSMetaData;
 import org.apache.hadoop.ha.HAServiceProtocolHelper;
 import org.apache.thrift.TException;
 
@@ -33,9 +34,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
     static class SupersqlOptionKey{
 
-        public static String MODEL;
-        public static String REALTIME;
-        public static String TRANSACTION;
+        public static String model;
+        public static String realtime;
+        public static String transaction;
 
         public static String DRIVER_NAME;
         public static String DATABASE;
@@ -313,6 +314,19 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
     private ParsedDriverSql parseSql(String sql){
 
+        String str[] = ParseUtil.getDbAndTable(sql);
+        String database = null;
+        String table = null;
+        if(str.length == 2){
+
+            database = str[0];
+            table = str[1];
+        }else if(str.length == 1){
+
+            database = this.currentDatabase;
+            table = str[1];
+        }
+
         String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
         optionsStr = optionsStr.substring(0,optionsStr.length()-1);
         System.out.println(optionsStr);
@@ -324,21 +338,27 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             optionsMap.put(option[0].trim(), option[1].trim());
         }
         Map<String, String> ssOptions = new HashMap<>();
-//        if(optionsMap.get(SupersqlOptionKey.MODEL).equalsIgnoreCase("")
-//                && optionsMap.get(SupersqlOptionKey.REALTIME).equalsIgnoreCase("true")) {
-//
-//            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
+        if(optionsMap.get(SupersqlOptionKey.realtime).equalsIgnoreCase("true")
+                && optionsMap.get(SupersqlOptionKey.model).equalsIgnoreCase("columnstore")) {
+
+            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.sparksql);
 //            ssOptions.put(SupersqlOptionKey.DATABASE, "default");
-//        }
+        }
+
+        SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table);
 
         return new ParsedDriverSql("presto", "create table");
     }
+
 
     @Override
     public SupersqlResultSet statement_executeQuery(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
         ResultSet resultSet = null;
         try {
+
+            String str[] = ParseUtil.getDbAndTable(sql);
+            Connection connection = ConnectionPool.getConnection()
             Statement driverStatement = id2Links.get(statement.getId()).getStatement();
             resultSet = driverStatement.executeQuery(sql);
             if(resultSet != null){
