@@ -2,36 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="60b5d67c-c17e-4861-b573-0a6ad45f66c7" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.ignore" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/thrift.sh" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../thrift-jdbc-server/src/main/java/driver/io/ConnectionService.java" afterPath="$PROJECT_DIR$/../../thrift-jdbc-server/src/main/java/driver/io/ConnectionService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resource/jdbc.thrift" afterPath="$PROJECT_DIR$/resource/jdbc.thrift" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/InvalidOperation.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/InvalidOperation.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlConnection.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlConnection.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlConnectionService.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlConnectionService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlException.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlException.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlProperty.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlProperty.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSet.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSetMetaData.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSetMetaData.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSetMetaDataPart.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlResultSetMetaDataPart.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlRow.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlRow.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlStatement.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlStaticMetaData.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlStaticMetaData.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlValue.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlValue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlWarning.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/SupersqlWarning.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/statement_getWarnings_return.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/gen/statement_getWarnings_return.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlConnection.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlConnection.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlResultSet.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlResultSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlSerivceImpl.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlSerivceImpl.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlStatement.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlStatement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/thrift/SupersqlClient2.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/thrift/SupersqlClient2.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/thrift/SupersqlServer.java" afterPath="$PROJECT_DIR$/src/main/java/com/tencent/supersql/thrift/SupersqlServer.java" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/../../uaeclient/target/" />
