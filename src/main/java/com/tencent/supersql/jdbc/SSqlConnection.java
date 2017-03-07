@@ -58,18 +58,21 @@ public class SSqlConnection implements Connection{
 
     }
 
-    public SSqlConnection(URI uri, String user){
+    public SSqlConnection(URI uri){
 
     }
 
-    public SSqlConnection(){
+
+    public SSqlConnection(String url){
 
         try {
+
+            String databaseName = url.substring(url.lastIndexOf("/"), url.length());
             TTransport transport = new TSocket("localhost", 7911);
             transport.open();
             TProtocol protocol = new TBinaryProtocol(transport);
            client = new SupersqlConnectionService.Client(protocol);
-           SupersqlConnection supersqlConnection = client.createConnection(null,null);
+           SupersqlConnection supersqlConnection = client.createConnection(databaseName,null);
            conid2CurrentLink = new Conid2CurrentLink(supersqlConnection.getId(), null);
         } catch (TTransportException e) {
             e.printStackTrace();

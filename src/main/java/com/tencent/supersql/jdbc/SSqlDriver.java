@@ -65,7 +65,7 @@ public class SSqlDriver implements Driver{
         if (!acceptsURL(url)) {
             return null;
         }
-        return new SSqlConnection();
+        return new SSqlConnection(url);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class ConnectionPool {
         for (int i = 0; i < 3; i++) {
 
             try {
-                Connection con = DriverManager.getConnection("", "test", null);
+                Connection con = DriverManager.getConnection("jdbc:presto://10.70.79.77:8081/mysql/tpch", "test", null);
                 prestoCons.add(con);
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -32,18 +32,18 @@ public class ConnectionPool {
         pool.put("presto", prestoCons);
 
         ////////////////////////////////////////
-        List<Connection> sparksqlCons = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-
-            try {
-                Connection con = DriverManager.getConnection("", "test", null);
-                sparksqlCons.add(con);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        pool.put("sparksql", sparksqlCons);
+//        List<Connection> sparksqlCons = new ArrayList<>();
+//        for (int i = 0; i < 3; i++) {
+//
+//            try {
+//                Connection con = DriverManager.getConnection("", "test", null);
+//                sparksqlCons.add(con);
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        pool.put("sparksql", sparksqlCons);
 
     }
 

@@ -22,7 +22,8 @@ public class SupersqlServer {
         PropertyConfigurator.configure( "conf/log4j.properties");
         Logger logger  =  Logger.getLogger(SupersqlServer.class);
 
-
+        SSMetaData.initSSMetaData();
+        ConnectionPool.init();
 
         try {
             TServerSocket serverTransport = new TServerSocket(7911);

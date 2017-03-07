@@ -5,6 +5,7 @@ package com.tencent.supersql.jdbc;
  */
 
 import com.tencent.supersql.gen.*;
+import com.tencent.supersql.thrift.ConnectionPool;
 import org.apache.hadoop.ha.HAServiceProtocolHelper;
 import org.apache.thrift.TException;
 
@@ -165,9 +166,8 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public SupersqlStatement createStatement(SupersqlConnection connection) throws TException {
 
-        ConnectionInfo connectionInfo = id2Links.get(connection.getId());
-        connectionInfo.createStatement();
-//        logger.info("Current link " + currentLinkName + " created a statement");
+//        ConnectionInfo connectionInfo = id2Links.get(connection.getId());
+//        connectionInfo.createStatement();
 
         return new SupersqlStatement(connection.getId(), null, 0);
     }
@@ -300,13 +300,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public boolean statement_executeupdate(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
-        Statement driverStatement = id2Links.get(statement.getId()).getStatement();
-        if(driverStatement == null){
-
-
-        }
         ParsedDriverSql driverSql = parseSql(sql);
         try {
+            Statement driverStatement = ConnectionPool.getConnection(driverSql.getDriverName()).createStatement();
             driverStatement.executeUpdate(driverSql.getParsedDriverSql());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -328,12 +324,12 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             optionsMap.put(option[0].trim(), option[1].trim());
         }
         Map<String, String> ssOptions = new HashMap<>();
-        if(optionsMap.get(SupersqlOptionKey.MODEL).equalsIgnoreCase("")
-                && optionsMap.get(SupersqlOptionKey.REALTIME).equalsIgnoreCase("true")) {
-
-            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
-            ssOptions.put(SupersqlOptionKey.DATABASE, "default");
-        }
+//        if(optionsMap.get(SupersqlOptionKey.MODEL).equalsIgnoreCase("")
+//                && optionsMap.get(SupersqlOptionKey.REALTIME).equalsIgnoreCase("true")) {
+//
+//            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
+//            ssOptions.put(SupersqlOptionKey.DATABASE, "default");
+//        }
 
         return new ParsedDriverSql("presto", "create table");
     }

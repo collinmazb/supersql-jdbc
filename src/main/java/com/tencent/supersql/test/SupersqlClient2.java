@@ -16,7 +16,7 @@ public class SupersqlClient2 {
 
         //创建uae连接
         Class.forName("com.tencent.supersql.jdbc.SSqlDriver");
-        String ssqlJdbcString = "jdbc:SSql://localhost:7911";
+        String ssqlJdbcString = "jdbc:SSql://localhost:7911/Default";
         Connection con = DriverManager.getConnection(ssqlJdbcString);
         SSqlConnection ssqlConnection = (SSqlConnection)con;
 
