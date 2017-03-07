@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="60b5d67c-c17e-4861-b573-0a6ad45f66c7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../uaeclient/uaeclient.iml" afterPath="$PROJECT_DIR$/../../uaeclient/uaeclient.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -26,7 +25,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="308">
               <caret line="24" column="29" lean-forward="false" selection-start-line="24" selection-start-column="29" selection-end-line="24" selection-end-column="29" />
-              <folding />
+              <folding>
+                <marker date="1488862700000" expanded="false" signature="45:165" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -35,23 +36,8 @@
         <entry file="file://$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlSerivceImpl.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="279">
-              <caret line="243" column="13" lean-forward="true" selection-start-line="243" selection-start-column="13" selection-end-line="243" selection-end-column="13" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#656#676#0" expanded="true" />
-                <element signature="e#1379#1380#0" expanded="true" />
-                <element signature="e#1413#1414#0" expanded="true" />
-                <element signature="e#1459#1460#0" expanded="true" />
-                <element signature="e#1497#1498#0" expanded="true" />
-                <element signature="e#1540#1541#0" expanded="true" />
-                <element signature="e#1580#1581#0" expanded="true" />
-                <element signature="e#1637#1638#0" expanded="true" />
-                <element signature="e#1687#1688#0" expanded="true" />
-                <element signature="e#3161#3169#0" expanded="true" />
-                <element signature="e#10726#10739#0" expanded="true" />
-                <element signature="e#10863#10894#0" expanded="true" />
-                <element signature="e#11101#11116#0" expanded="true" />
-              </folding>
+              <caret line="220" column="20" lean-forward="true" selection-start-line="220" selection-start-column="20" selection-end-line="220" selection-end-column="20" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -72,9 +58,10 @@
             <state relative-caret-position="1316">
               <caret line="94" column="64" lean-forward="false" selection-start-line="94" selection-start-column="64" selection-end-line="94" selection-end-column="64" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <marker date="1488862049000" expanded="true" signature="8771:8772" ph="//..." />
-                <marker date="1488862049000" expanded="true" signature="8771:8778" ph="{...}" />
+                <element signature="e#8819#8820#0" expanded="false" />
+                <element signature="e#8853#8854#0" expanded="false" />
+                <marker date="1488862700000" expanded="true" signature="8771:8772" ph="//..." />
+                <marker date="1488862700000" expanded="true" signature="8771:8778" ph="{...}" />
               </folding>
             </state>
           </provider>
@@ -154,9 +141,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="252">
               <caret line="18" column="30" lean-forward="false" selection-start-line="18" selection-start-column="30" selection-end-line="18" selection-end-column="30" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -180,6 +165,13 @@
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
       <projects_view />
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlSerivceImpl.java" />
+      </list>
     </option>
   </component>
   <component name="MavenProjectNavigator">
@@ -699,9 +691,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="18" column="30" lean-forward="false" selection-start-line="18" selection-start-column="30" selection-end-line="18" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -781,9 +771,10 @@
         <state relative-caret-position="1316">
           <caret line="94" column="64" lean-forward="false" selection-start-line="94" selection-start-column="64" selection-end-line="94" selection-end-column="64" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1488862049000" expanded="true" signature="8771:8772" ph="//..." />
-            <marker date="1488862049000" expanded="true" signature="8771:8778" ph="{...}" />
+            <element signature="e#8819#8820#0" expanded="false" />
+            <element signature="e#8853#8854#0" expanded="false" />
+            <marker date="1488862700000" expanded="true" signature="8771:8772" ph="//..." />
+            <marker date="1488862700000" expanded="true" signature="8771:8778" ph="{...}" />
           </folding>
         </state>
       </provider>
@@ -793,7 +784,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="308">
           <caret line="24" column="29" lean-forward="false" selection-start-line="24" selection-start-column="29" selection-end-line="24" selection-end-column="29" />
-          <folding />
+          <folding>
+            <marker date="1488862700000" expanded="false" signature="45:165" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -801,45 +794,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="237">
           <caret line="267" column="31" lean-forward="true" selection-start-line="267" selection-start-column="31" selection-end-line="267" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#656#676#0" expanded="true" />
-            <element signature="e#1379#1380#0" expanded="true" />
-            <element signature="e#1413#1414#0" expanded="true" />
-            <element signature="e#1459#1460#0" expanded="true" />
-            <element signature="e#1497#1498#0" expanded="true" />
-            <element signature="e#1540#1541#0" expanded="true" />
-            <element signature="e#1580#1581#0" expanded="true" />
-            <element signature="e#1637#1638#0" expanded="true" />
-            <element signature="e#1687#1688#0" expanded="true" />
-            <element signature="e#3161#3169#0" expanded="true" />
-            <element signature="e#10726#10739#0" expanded="true" />
-            <element signature="e#10863#10894#0" expanded="true" />
-            <element signature="e#11101#11116#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/tencent/supersql/jdbc/SSqlSerivceImpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
-          <caret line="243" column="13" lean-forward="true" selection-start-line="243" selection-start-column="13" selection-end-line="243" selection-end-column="13" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#656#676#0" expanded="true" />
-            <element signature="e#1379#1380#0" expanded="true" />
-            <element signature="e#1413#1414#0" expanded="true" />
-            <element signature="e#1459#1460#0" expanded="true" />
-            <element signature="e#1497#1498#0" expanded="true" />
-            <element signature="e#1540#1541#0" expanded="true" />
-            <element signature="e#1580#1581#0" expanded="true" />
-            <element signature="e#1637#1638#0" expanded="true" />
-            <element signature="e#1687#1688#0" expanded="true" />
-            <element signature="e#3161#3169#0" expanded="true" />
-            <element signature="e#10726#10739#0" expanded="true" />
-            <element signature="e#10863#10894#0" expanded="true" />
-            <element signature="e#11101#11116#0" expanded="true" />
-          </folding>
+          <caret line="220" column="20" lean-forward="true" selection-start-line="220" selection-start-column="20" selection-end-line="220" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
