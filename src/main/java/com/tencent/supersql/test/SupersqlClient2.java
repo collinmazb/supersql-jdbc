@@ -1,4 +1,4 @@
-package com.tencent.supersql.thrift;
+package com.tencent.supersql.test;
 
 import com.tencent.supersql.jdbc.SSqlConnection;
 

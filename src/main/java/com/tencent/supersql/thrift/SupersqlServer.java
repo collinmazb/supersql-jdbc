@@ -21,6 +21,9 @@ public class SupersqlServer {
 
         PropertyConfigurator.configure( "conf/log4j.properties");
         Logger logger  =  Logger.getLogger(SupersqlServer.class);
+
+
+
         try {
             TServerSocket serverTransport = new TServerSocket(7911);
             TBinaryProtocol.Factory proFactory = new TBinaryProtocol.Factory();

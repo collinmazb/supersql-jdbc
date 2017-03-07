@@ -1,4 +1,4 @@
-package com.tencent.supersql.thrift;
+package com.tencent.supersql.test;
 
 /**
  * Created by waixingren on 2/21/17.
