@@ -6,17 +6,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+<<<<<<< Updated upstream
         <module name="hello" />
+=======
+>>>>>>> Stashed changes
         <module name="thrift-jdbc-server" />
         <module name="uaeclient" />
         <module name="uaejdbc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
+<<<<<<< Updated upstream
       <module name="hello" target="1.8" />
       <module name="thrift-jdbc-server" target="1.7" />
       <module name="uaeclient" target="1.8" />
       <module name="uaejdbc" target="1.8" />
+=======
+      <module name="thrift-jdbc-server" target="1.5" />
+      <module name="uaeclient" target="1.5" />
+      <module name="uaejdbc" target="1.5" />
+>>>>>>> Stashed changes
     </bytecodeTargetLevel>
   </component>
 </project>

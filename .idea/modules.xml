@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< Updated upstream
       <module fileurl="file://$PROJECT_DIR$/../../../thrift/hello/hello.iml" filepath="$PROJECT_DIR$/../../../thrift/hello/hello.iml" />
+=======
+>>>>>>> Stashed changes
       <module fileurl="file://$PROJECT_DIR$/../../thrift-jdbc-server/thrift-jdbc-server.iml" filepath="$PROJECT_DIR$/../../thrift-jdbc-server/thrift-jdbc-server.iml" />
       <module fileurl="file://$PROJECT_DIR$/../../uaeclient/uaeclient.iml" filepath="$PROJECT_DIR$/../../uaeclient/uaeclient.iml" />
       <module fileurl="file://$PROJECT_DIR$/uaejdbc.iml" filepath="$PROJECT_DIR$/uaejdbc.iml" />
