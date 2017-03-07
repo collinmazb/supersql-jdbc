@@ -6,11 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="uaeclient" />
         <module name="uaejdbc" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
-      <module name="uaejdbc" target="1.8" />
+      <module name="uaeclient" target="1.5" />
+      <module name="uaejdbc" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
