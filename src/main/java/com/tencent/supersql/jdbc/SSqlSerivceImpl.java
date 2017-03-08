@@ -315,17 +315,8 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     private ParsedDriverSql parseSql(String sql){
 
         String str[] = ParseUtil.getDbAndTable(sql);
-        String database = null;
-        String table = null;
-        if(str.length == 2){
-
-            database = str[0];
-            table = str[1];
-        }else if(str.length == 1){
-
-            database = this.currentDatabase;
-            table = str[1];
-        }
+        String database = str.length==2 ? str[0] : this.currentDatabase;
+        String table = str.length==2 ? str[1] : str[0];
 
         String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
         optionsStr = optionsStr.substring(0,optionsStr.length()-1);
@@ -358,8 +349,10 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         try {
 
             String str[] = ParseUtil.getDbAndTable(sql);
-            Connection connection = ConnectionPool.getConnection()
-            Statement driverStatement = id2Links.get(statement.getId()).getStatement();
+            String database = str.length==2 ? str[0] : this.currentDatabase;
+            String table = str.length==2 ? str[1] : str[0];
+            Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
+            Statement driverStatement = connection.createStatement();
             resultSet = driverStatement.executeQuery(sql);
             if(resultSet != null){
 
@@ -373,34 +366,6 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     }
 
     private static SupersqlResultSet convertResultSet(ResultSet driverResultSet){
-//          public SupersqlRow(
-//                java.util.List<SupersqlValue> values)
-//        {
-//            this();
-//            this.values = values;
-//        }
-
-//          public SupersqlValue(
-//        boolean isnull,
-//        RawVal val)
-//        {
-//            this();
-//            this.isnull = isnull;
-//            setIsnullIsSet(true);
-//            this.val = val;
-//        }
-
-        //  public SupersqlResultSet(
-//        int id,
-//        java.util.List<SupersqlRow> rows,
-//        SupersqlResultSetMetaData metadata)
-//        {
-//            this();
-//            this.id = id;
-//            setIdIsSet(true);
-//            this.rows = rows;
-//            this.metadata = metadata;
-//        }
 
         List<SupersqlRow> rows = new ArrayList<SupersqlRow>();
         ResultSetMetaData resultSetMetaData = null;

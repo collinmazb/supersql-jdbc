@@ -12,6 +12,15 @@ import java.util.Map;
 public class SSMetaData {
 
 
+    private static Map<String, List<DriverInfo>> driverInfoMap = new HashedMap();
+
+    static enum DRIVERS{
+
+        sparksql,
+        hive,
+        presto
+    }
+
     static class DriverInfo{
 
         private String driverName;
@@ -23,14 +32,46 @@ public class SSMetaData {
             this.driverDB = driverDB;
             this.driverTableName = driverTableName;
         }
+
+        public String getDriverName() {
+            return driverName;
+        }
+        public String getDriverDB() {
+            return driverDB;
+        }
+        public String getDriverTableName() {
+            return driverTableName;
+        }
+
     }
 
-    private static Map<String, List<DriverInfo>> driverInfoMap = new HashedMap();
+    public static String getDriverName(String database, String tableName){
+
+        List<DriverInfo> driverInfos = driverInfoMap.get(database);
+        String driverName = null;
+        for(DriverInfo driverInfo : driverInfos){
+
+            String driverTableName = driverInfo.getDriverTableName();
+            String driverDatabase = driverInfo.getDriverDB();
+            if(driverTableName.equalsIgnoreCase(tableName) && driverDatabase.equalsIgnoreCase(database)){
+
+                driverName =  driverInfo.getDriverName();
+            }
+        }
+        return null;
+    }
+
     public static void initSSMetaData(){
 
         String superSqlDefault = "Default";
         List<DriverInfo> driverInfos = new ArrayList<>();
         driverInfoMap.put(superSqlDefault, driverInfos);
+
+        updateSSMetaData("sparksql", superSqlDefault, "nation");
+        updateSSMetaData("sparksql", superSqlDefault, "region");
+        updateSSMetaData("hive", superSqlDefault, "orders");
+        updateSSMetaData("hive", superSqlDefault, "lineitems");
+
     }
 
     public static void updateSSMetaData(String driverName, String database, String tableName){

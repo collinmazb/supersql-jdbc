@@ -31,7 +31,7 @@ public class SupersqlClient2 {
                 "  FIELDS TERMINATED BY '|' " +
                 "ssoptions(model columnstore, realtime false, transaction true)";
 
-        statement.executeUpdate("create table users() ssoptions(model columnstore, realtime false, transaction true)");
+        statement.executeUpdate(createTable);
 
         statement.executeQuery("select * from nation");
 
