@@ -12,16 +12,13 @@ import java.util.Map;
 public class SSMetaData {
 
 
-    private static Map<String, List<DriverInfo>> driverInfoMap = new HashedMap();
+    private static Map<String, List<DriverInfo>> db2DriverInfoMap = new HashedMap();
 
-    static enum DRIVERS{
-
-        sparksql,
-        hive,
-        presto
+    public static Map<String, List<DriverInfo>> getDb2DriverInfoMap() {
+        return db2DriverInfoMap;
     }
 
-    static class DriverInfo{
+    static public class DriverInfo{
 
         private String driverName;
         private String driverDB;
@@ -47,7 +44,7 @@ public class SSMetaData {
 
     public static String getDriverName(String database, String tableName){
 
-        List<DriverInfo> driverInfos = driverInfoMap.get(database);
+        List<DriverInfo> driverInfos = db2DriverInfoMap.get(database);
         String driverName = null;
         for(DriverInfo driverInfo : driverInfos){
 
@@ -56,6 +53,7 @@ public class SSMetaData {
             if(driverTableName.equalsIgnoreCase(tableName) && driverDatabase.equalsIgnoreCase(database)){
 
                 driverName =  driverInfo.getDriverName();
+                return driverName;
             }
         }
         return null;
@@ -63,11 +61,14 @@ public class SSMetaData {
 
     public static void initSSMetaData(){
 
-        String superSqlDefault = "Default";
+        String superSqlDefault = "default";
         List<DriverInfo> driverInfos = new ArrayList<>();
-        driverInfoMap.put(superSqlDefault, driverInfos);
+        driverInfos.add(new DriverInfo("presto", "default", "tb11"));
+        driverInfos.add(new DriverInfo("presto", "default", "tb12"));
 
-        updateSSMetaData("sparksql", superSqlDefault, "nation");
+        db2DriverInfoMap.put(superSqlDefault, driverInfos);
+
+//        updateSSMetaData("sparksql", superSqlDefault, "nation");
         updateSSMetaData("sparksql", superSqlDefault, "region");
         updateSSMetaData("hive", superSqlDefault, "orders");
         updateSSMetaData("hive", superSqlDefault, "lineitems");
@@ -76,7 +77,12 @@ public class SSMetaData {
 
     public static void updateSSMetaData(String driverName, String database, String tableName){
 
-        List<DriverInfo> driverInfos = driverInfoMap.get(driverName);
+        List<DriverInfo> driverInfos = db2DriverInfoMap.get(database);
+        if(driverInfos == null){
+
+            driverInfos = new ArrayList<>();
+        }
         driverInfos.add(new DriverInfo(driverName,database,tableName));
+        db2DriverInfoMap.put(database, driverInfos);
     }
 }

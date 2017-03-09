@@ -5,20 +5,23 @@ package com.tencent.supersql.jdbc;
  */
 public class ParseUtil {
 
-    public static String[] getDbAndTable(String sql){
+    public static String[] getDbAndTable(String sql1){
 
-        if(sql.startsWith("create")){
 
-            String s = sql;
+        String sql2 = sql1.toLowerCase();
+        if(sql2.toLowerCase().startsWith("create")){
+
+            String s = sql2;
             String postcreatetable = s.substring(s.indexOf(" table ")+7, s.length()).trim();
             String tableName = postcreatetable.substring(0,postcreatetable.indexOf("("));
             String str[] = tableName.split("\\.");
             return str;
-        }else if(sql.startsWith("select")){
+        }else if(sql2.toLowerCase().startsWith("select")){
 
-            String s = "select * from db1.nation where nationkey>10";
+            String s = sql2;
             String postfrom = s.substring(s.indexOf("from") + 4, s.length()).trim();
-            String dbtable = postfrom.substring(0, postfrom.indexOf(" "));
+//            String dbtable = postfrom.substring(0, postfrom.indexOf(" "));
+            String dbtable = postfrom;
             String str[] = dbtable.split("\\.");
             return str;
         }else{

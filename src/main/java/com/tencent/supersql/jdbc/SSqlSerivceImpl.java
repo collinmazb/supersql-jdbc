@@ -7,18 +7,13 @@ package com.tencent.supersql.jdbc;
 import com.tencent.supersql.gen.*;
 import com.tencent.supersql.thrift.ConnectionPool;
 import com.tencent.supersql.thrift.SSMetaData;
-import org.apache.hadoop.ha.HAServiceProtocolHelper;
 import org.apache.thrift.TException;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.apache.log4j.Logger;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.tencent.supersql.gen.RawVal.*;
 
 public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
@@ -26,7 +21,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     Logger logger  =  Logger.getLogger(SSqlSerivceImpl.class);
     private Map<String, Connection> allLinks = new HashMap<String, Connection>();
     private Connection currentLink;
-    private String currentDatabase;
+    private Map<Integer, String> conid2Db = new HashMap<>();
     private Map<Integer, ConnectionInfo> id2Links = new HashMap<>();
     private String currentLinkName;
     private Statement currentStatement;
@@ -38,15 +33,15 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         public static String realtime;
         public static String transaction;
 
-        public static String DRIVER_NAME;
+        public static String DRIVER_NAME = "drivername";
         public static String DATABASE;
     }
 
     static class SupersqlOptionValue{
 
-        public static String hive;
-        public static String presto;
-        public static String sparksql;
+        public static String hive = "hive";
+        public static String presto  = "presto";
+        public static String sparksql = "sparksql";
 
     }
 
@@ -159,8 +154,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public SupersqlConnection createConnection(String database, Map<String, String> properties) throws TException {
 
-        currentDatabase = database;
+        //TODO synchronized
         int conId = this.id.incrementAndGet();
+        conid2Db.put(new Integer(conId), database);
         return new SupersqlConnection(conId);
     }
 
@@ -295,13 +291,19 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
     @Override
     public boolean statement_execute(SupersqlStatement statement, String sql) throws SupersqlException, TException {
-        return false;
+
+        if(sql.startsWith("use")){
+
+            String database = sql.split(" ")[1];
+            conid2Db.put(statement.getId(), database);
+        }
+        return true;
     }
 
     @Override
     public boolean statement_executeupdate(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
-        ParsedDriverSql driverSql = parseSql(sql);
+        ParsedDriverSql driverSql = parseSql(statement, sql);
         try {
             Statement driverStatement = ConnectionPool.getConnection(driverSql.getDriverName()).createStatement();
             driverStatement.executeUpdate(driverSql.getParsedDriverSql());
@@ -312,13 +314,15 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         return true;
     }
 
-    private ParsedDriverSql parseSql(String sql){
+    private ParsedDriverSql parseSql(SupersqlStatement statement,String sql){
 
         String str[] = ParseUtil.getDbAndTable(sql);
-        String database = str.length==2 ? str[0] : this.currentDatabase;
+        String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
         String table = str.length==2 ? str[1] : str[0];
 
+        StringBuffer driversql = new StringBuffer(sql.substring(0,sql.indexOf("ssoptions")));
         String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
+
         optionsStr = optionsStr.substring(0,optionsStr.length()-1);
         System.out.println(optionsStr);
         String options[] = optionsStr.split(",");
@@ -329,16 +333,15 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             optionsMap.put(option[0].trim(), option[1].trim());
         }
         Map<String, String> ssOptions = new HashMap<>();
-        if(optionsMap.get(SupersqlOptionKey.realtime).equalsIgnoreCase("true")
-                && optionsMap.get(SupersqlOptionKey.model).equalsIgnoreCase("columnstore")) {
+        if(optionsMap.get("transaction").equalsIgnoreCase("true")) {
 
-            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.sparksql);
-//            ssOptions.put(SupersqlOptionKey.DATABASE, "default");
+            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
+            driversql.append("STORED AS ORC");
         }
 
         SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table);
 
-        return new ParsedDriverSql("presto", "create table");
+        return new ParsedDriverSql(ssOptions.get(SupersqlOptionKey.DRIVER_NAME), driversql.toString());
     }
 
 
@@ -346,10 +349,17 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     public SupersqlResultSet statement_executeQuery(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
         ResultSet resultSet = null;
+
+        if(sql.startsWith("show")){
+
+            String database = conid2Db.get(statement.getId());
+            return processShow(database, sql);
+        }
+
         try {
 
             String str[] = ParseUtil.getDbAndTable(sql);
-            String database = str.length==2 ? str[0] : this.currentDatabase;
+            String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
             String table = str.length==2 ? str[1] : str[0];
             Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
             Statement driverStatement = connection.createStatement();
@@ -362,128 +372,21 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             e.printStackTrace();
         }
 
-        return convertResultSet(resultSet);
+        return ResultSetUtil.convertResultSet(resultSet);
     }
 
-    private static SupersqlResultSet convertResultSet(ResultSet driverResultSet){
+    private static SupersqlResultSet processShow(String database, String sql) {
 
-        List<SupersqlRow> rows = new ArrayList<SupersqlRow>();
-        ResultSetMetaData resultSetMetaData = null;
-        List<SupersqlResultSetMetaDataPart> partlist = new ArrayList<SupersqlResultSetMetaDataPart>();
-        try {
-            resultSetMetaData = driverResultSet.getMetaData();
+        if(sql.equalsIgnoreCase("show databases")){
 
-            //for data
-            while(driverResultSet.next()){
+            Set<String> dbs = SSMetaData.getDb2DriverInfoMap().keySet();
+            return ResultSetUtil.convertDB(dbs);
+        }else if(sql.equalsIgnoreCase("show tables")){
 
-                List<SupersqlValue> values = new ArrayList<SupersqlValue>();
-                int fieldCount = resultSetMetaData.getColumnCount();
-
-                for (int i = 1; i < fieldCount+1; i++) {
-
-                    int columnType = resultSetMetaData.getColumnType(i);
-                    RawVal rawVal = null;
-                    switch (columnType){
-
-                        case 4:
-                            rawVal = integer_val(driverResultSet.getInt(i));
-                            break;
-                        case 5:
-                            rawVal = smallint_val(driverResultSet.getShort(i));
-                            break;
-                        case -5:
-                            rawVal = bigint_val(driverResultSet.getLong(i));
-                            break;
-                        case 6:
-                            rawVal = RawVal.double_val(driverResultSet.getDouble(i));
-                            break;
-                        case 8:
-                            rawVal = RawVal.double_val(driverResultSet.getDouble(i));
-                            break;
-                        case 12:
-                            rawVal = string_val(driverResultSet.getString(i));
-                            break;
-                        case 1:
-                            rawVal = string_val(driverResultSet.getString(i));
-                            break;
-                        case -16:
-                            rawVal  = string_val(driverResultSet.getString(i));
-                            break;
-                        case 16:
-                            rawVal = bool_val(driverResultSet.getBoolean(i));
-                            break;
-                        default:
-                            System.err.println("not supported field type");
-                    }
-                    values.add(new SupersqlValue(false,rawVal));
-                }
-                rows.add(new SupersqlRow(values));
-            }
-
-            //for meta
-            int fieldCount = resultSetMetaData.getColumnCount();
-            for (int i = 1; i < fieldCount+1; i++) {
-
-//                String catalogName = resultSetMetaData.getCatalogName(i);
-                String catalogName = "";
-                String columnClassName = resultSetMetaData.getColumnClassName(i);
-                int columnDisplaySize = resultSetMetaData.getColumnDisplaySize(i);
-                String columnLabel = resultSetMetaData.getColumnLabel(i);
-                String columnName = resultSetMetaData.getColumnName(i);
-                int columnType = resultSetMetaData.getColumnType(i) == 1? 12:resultSetMetaData.getColumnType(i);
-
-                String columnTypeName = resultSetMetaData.getColumnTypeName(i);
-                int precision = resultSetMetaData.getPrecision(i);
-                int scale = resultSetMetaData.getScale(i);
-//                String schemaName = resultSetMetaData.getSchemaName(i);
-                String schemaName = "";
-//                String tableName = resultSetMetaData.getTableName(i);
-                String tableName = "";
-                boolean autoIncrement = resultSetMetaData.isAutoIncrement(i);
-                boolean caseSensitve = resultSetMetaData.isCaseSensitive(i);
-                boolean currency = resultSetMetaData.isCurrency(i);
-//                boolean definitelyWritable = resultSetMetaData.isDefinitelyWritable(i);
-                boolean definitelyWritable = true;
-                int nullable = resultSetMetaData.isNullable(i);
-                boolean readOnly = resultSetMetaData.isReadOnly(i);
-//                boolean searchable = resultSetMetaData.isSearchable(i);
-                boolean searchable = true;
-//                boolean signed = resultSetMetaData.isSigned(i);
-                boolean signed = true;
-//                boolean writable = resultSetMetaData.isWritable(i);
-                boolean writable = true;
-
-                SupersqlResultSetMetaDataPart supersqlResultSetMetaDataPart = new SupersqlResultSetMetaDataPart(
-                        catalogName,
-                        columnClassName,
-                        columnDisplaySize,
-                        columnLabel,
-                        columnName,
-                        columnType,
-                        columnTypeName,
-                        precision,
-                        scale,
-                        schemaName,
-                        tableName,
-                        autoIncrement,
-                        caseSensitve,
-                        currency,
-                        definitelyWritable,
-                        nullable,
-                        readOnly,
-                        searchable,
-                        signed,
-                        writable);
-                partlist.add(supersqlResultSetMetaDataPart);
-
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            List<SSMetaData.DriverInfo> driverInfos = SSMetaData.getDb2DriverInfoMap().get(database);
+            return ResultSetUtil.convertTable(driverInfos);
         }
-
-
-        return new SupersqlResultSet(1, rows,new SupersqlResultSetMetaData(partlist));
+        return null;
     }
 
     @Override

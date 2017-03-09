@@ -109,7 +109,15 @@ public class SSqlStatement implements Statement{
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        return false;
+
+        boolean flag = false;
+        try {
+            flag = this.client.statement_execute(supersqlStatement, sql);
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+
+        return flag;
     }
 
     @Override

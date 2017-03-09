@@ -15,13 +15,6 @@ public class SupersqlClient2 {
 
 
         //创建uae连接
-        Class.forName("com.tencent.supersql.jdbc.SSqlDriver");
-        String ssqlJdbcString = "jdbc:SSql://localhost:7911/Default";
-        Connection con = DriverManager.getConnection(ssqlJdbcString);
-        SSqlConnection ssqlConnection = (SSqlConnection)con;
-
-        Statement statement = ssqlConnection.createStatement();
-
         String createTable = "CREATE EXTERNAL TABLE nation(\n" +
                 "  n_nationkey int,\n" +
                 "  n_name string,\n" +
@@ -31,9 +24,25 @@ public class SupersqlClient2 {
                 "  FIELDS TERMINATED BY '|' " +
                 "ssoptions(model columnstore, realtime false, transaction true)";
 
-        statement.executeUpdate(createTable);
 
-        statement.executeQuery("select * from nation");
+        Class.forName("com.tencent.supersql.jdbc.SSqlDriver");
+        String ssqlJdbcString = "jdbc:SSql://localhost:7911/Default";
+        Connection con = DriverManager.getConnection(ssqlJdbcString);
+        SSqlConnection ssqlConnection = (SSqlConnection)con;
+
+        Statement statement = ssqlConnection.createStatement();
+
+//
+//        statement.executeUpdate(createTable);
+
+        ResultSet resultSet = statement.executeQuery("show databases");
+        resultSet.next();
+        System.out.println("result:");
+        System.out.println(resultSet.getString(1));
+        resultSet.next();
+        System.out.println(resultSet.getString(1));
+        resultSet.next();
+        System.out.println(resultSet.getString(1));
 
 //        ssqlConnection.createLink("jdbc:presto://10.70.79.88:8081/mysql/tpch","link2presto","test", "");
     }

@@ -18,32 +18,32 @@ public class ConnectionPool {
     private static Map<String, List<Connection>> pool = new HashMap<>();
     public static void init(){
 
-        List<Connection> prestoCons = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-
-            try {
-                Connection con = DriverManager.getConnection("jdbc:presto://10.70.79.77:8081/mysql/tpch", "test", null);
-                prestoCons.add(con);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        pool.put("presto", prestoCons);
-
-        ////////////////////////////////////////
-//        List<Connection> sparksqlCons = new ArrayList<>();
+//        List<Connection> prestoCons = new ArrayList<>();
 //        for (int i = 0; i < 3; i++) {
 //
 //            try {
-//                Connection con = DriverManager.getConnection("", "test", null);
-//                sparksqlCons.add(con);
+//                Connection con = DriverManager.getConnection("jdbc:presto://10.70.79.77:8081/mysql/tpch", "test", null);
+//                prestoCons.add(con);
 //            } catch (SQLException e) {
 //                e.printStackTrace();
 //            }
 //        }
 //
-//        pool.put("sparksql", sparksqlCons);
+//        pool.put("presto", prestoCons);
+
+        ////////////////////////////////////////
+        List<Connection> sparksqlCons = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+
+            try {
+                Connection con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default", "waixingren", null);
+                sparksqlCons.add(con);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        pool.put("hive", sparksqlCons);
 
     }
 
