@@ -4,6 +4,8 @@ package com.tencent.supersql.jdbc;
  * Created by waixingren on 2/27/17.
  */
 
+import com.facebook.presto.jdbc.PrestoConnection;
+import com.facebook.presto.jdbc.PrestoStatement;
 import com.tencent.supersql.gen.*;
 import com.tencent.supersql.thrift.ConnectionPool;
 import com.tencent.supersql.thrift.SSMetaData;
@@ -333,15 +335,23 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             optionsMap.put(option[0].trim(), option[1].trim());
         }
         Map<String, String> ssOptions = new HashMap<>();
-        if(optionsMap.get("transaction").equalsIgnoreCase("true")) {
+        if(optionsMap.containsKey("driver")){
+            if(optionsMap.get("driver").equalsIgnoreCase("presto")){
 
-            ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
-            driversql.append("STORED AS ORC");
+                SSMetaData.updateSSMetaData("presto", database,table.trim());
+                return new ParsedDriverSql("presto", driversql.toString());
+            }
+        }else if(optionsMap.containsKey("transaction")){
+
+            if(optionsMap.get("transaction").equalsIgnoreCase("true")) {
+
+                ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
+                driversql.append("STORED AS ORC");
+                SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table);
+                return new ParsedDriverSql(ssOptions.get(SupersqlOptionKey.DRIVER_NAME), driversql.toString());
+            }
         }
-
-        SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table);
-
-        return new ParsedDriverSql(ssOptions.get(SupersqlOptionKey.DRIVER_NAME), driversql.toString());
+        return null;
     }
 
 
@@ -362,6 +372,10 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
             String table = str.length==2 ? str[1] : str[0];
             Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
+            if(connection instanceof PrestoConnection){
+
+                connection.setSchema(database);
+            }
             Statement driverStatement = connection.createStatement();
             resultSet = driverStatement.executeQuery(sql);
             if(resultSet != null){

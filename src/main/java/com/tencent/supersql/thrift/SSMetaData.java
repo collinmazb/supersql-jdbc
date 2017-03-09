@@ -46,14 +46,17 @@ public class SSMetaData {
 
         List<DriverInfo> driverInfos = db2DriverInfoMap.get(database);
         String driverName = null;
-        for(DriverInfo driverInfo : driverInfos){
+        for (DriverInfo driverInfo : driverInfos) {
 
             String driverTableName = driverInfo.getDriverTableName();
             String driverDatabase = driverInfo.getDriverDB();
-            if(driverTableName.equalsIgnoreCase(tableName) && driverDatabase.equalsIgnoreCase(database)){
+            if (driverTableName.equalsIgnoreCase(tableName)) {
 
-                driverName =  driverInfo.getDriverName();
-                return driverName;
+                if (driverDatabase.equalsIgnoreCase(database)) {
+
+                    driverName = driverInfo.getDriverName();
+                    return driverName;
+                }
             }
         }
         return null;
