@@ -1,5 +1,7 @@
 package com.tencent.supersql.jdbc;
 
+import com.tencent.supersql.thrift.SSMetaData;
+
 /**
  * Created by waixingren on 3/7/17.
  */
@@ -20,14 +22,27 @@ public class ParseUtil {
 
             String s = sql2;
             String postfrom = s.substring(s.indexOf("from") + 4, s.length()).trim();
-//            String dbtable = postfrom.substring(0, postfrom.indexOf(" "));
             String dbtable = postfrom;
             String str[] = dbtable.split("\\.");
             return str;
-        }else{
+        }else if(sql2.startsWith("desc") || sql2.startsWith("describe")){
 
-            return null;
+            String postdesc = sql2.substring(sql2.indexOf(" "), sql2.length()).trim();
+            String str[] = postdesc.split("\\.");
+            return str;
         }
+        return null;
 
+    }
+
+    public  static String getDriverName(String sql){
+
+        int driverIdx = sql.indexOf(" driver ");
+        String driverName = sql.substring(driverIdx + 8, sql.length()).trim();
+        if(SSMetaData.supportedDrivers.contains(driverName)){
+
+            return driverName;
+        }
+        return null;
     }
 }

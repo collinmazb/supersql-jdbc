@@ -15,6 +15,8 @@ import java.sql.*;
 import java.util.*;
 
 import org.apache.log4j.Logger;
+
+import javax.swing.plaf.nimbus.State;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
@@ -305,10 +307,13 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public boolean statement_executeupdate(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
+        boolean flag = isDDL(sql);
+        if(!flag) return false;
+
         ParsedDriverSql driverSql = parseSql(statement, sql);
         try {
             Statement driverStatement = ConnectionPool.getConnection(driverSql.getDriverName()).createStatement();
-            driverStatement.executeUpdate(driverSql.getParsedDriverSql());
+            int r = driverStatement.executeUpdate(driverSql.getParsedDriverSql());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -316,40 +321,97 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         return true;
     }
 
-    private ParsedDriverSql parseSql(SupersqlStatement statement,String sql){
+    private boolean isDDL(String sql) {
 
-        String str[] = ParseUtil.getDbAndTable(sql);
-        String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
-        String table = str.length==2 ? str[1] : str[0];
+        sql = sql.toLowerCase();
+        if(sql.startsWith("create")){
 
-        StringBuffer driversql = new StringBuffer(sql.substring(0,sql.indexOf("ssoptions")));
-        String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
+            String sub = sql.trim().substring(6, sql.length()).trim();
+            if(sub.startsWith("database")){
 
-        optionsStr = optionsStr.substring(0,optionsStr.length()-1);
-        System.out.println(optionsStr);
-        String options[] = optionsStr.split(",");
-        Map<String,String> optionsMap = new HashMap<>();
-        for (int i = 0; i < options.length; i++) {
+                return false;
+//                throw new SupersqlException("create database not supported", "hahaha", -1);
+            }else if(sub.startsWith("table") || sub.startsWith("external")){
 
-            String option[] = options[i].trim().split(" ");
-            optionsMap.put(option[0].trim(), option[1].trim());
+                return true;
+            }
+        }else if(sql.startsWith("drop")){
+
+            String sub = sql.trim().substring(4, sql.length()).trim();
+            if(sub.startsWith("database")){
+
+
+                return false;
+            }else if(sub.startsWith("table")){
+
+                return true;
+            }
+        }else{
+
+            return false;
         }
-        Map<String, String> ssOptions = new HashMap<>();
-        if(optionsMap.containsKey("driver")){
-            if(optionsMap.get("driver").equalsIgnoreCase("presto")){
 
-                SSMetaData.updateSSMetaData("presto", database,table.trim());
-                return new ParsedDriverSql("presto", driversql.toString());
+        return false;
+    }
+
+//    private ParsedDriverSql parseSql(SupersqlStatement statement,String sql){
+//
+//        String str[] = ParseUtil.getDbAndTable(sql);
+//        String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
+//        String table = str.length==2 ? str[1] : str[0];
+//
+//        StringBuffer driversql = new StringBuffer(sql.substring(0,sql.indexOf("ssoptions")));
+//        String optionsStr = sql.substring(sql.indexOf("ssoptions")+10, sql.length());
+//
+//        optionsStr = optionsStr.substring(0,optionsStr.length()-1);
+//        System.out.println(optionsStr);
+//        String options[] = optionsStr.split(",");
+//        Map<String,String> optionsMap = new HashMap<>();
+//        for (int i = 0; i < options.length; i++) {
+//
+//            String option[] = options[i].trim().split(" ");
+//            optionsMap.put(option[0].trim(), option[1].trim());
+//        }
+//        Map<String, String> ssOptions = new HashMap<>();
+//        if(optionsMap.containsKey("driver")){
+//            if(optionsMap.get("driver").equalsIgnoreCase("presto")){
+//
+//                SSMetaData.updateSSMetaData("presto", database,table.trim(), "");
+//                return new ParsedDriverSql("presto", driversql.toString());
+//            }
+//        }else if(optionsMap.containsKey("transaction")){
+//
+//            if(optionsMap.get("transaction").equalsIgnoreCase("true")) {
+//
+//                ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
+//                driversql.append("STORED AS ORC");
+//                SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table, "");
+//                return new ParsedDriverSql(ssOptions.get(SupersqlOptionKey.DRIVER_NAME), driversql.toString());
+//            }
+//        }
+//        return null;
+//    }
+
+    private ParsedDriverSql parseSql(SupersqlStatement supersqlStatement, String sql){
+
+        sql = sql.toLowerCase().trim();
+        String dbtb[] = ParseUtil.getDbAndTable(sql);
+        String database = dbtb.length==2 ? dbtb[0] : conid2Db.get(supersqlStatement.getId());
+        String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
+
+        int idx = sql.indexOf(" driver ");
+        String preDriver = sql.substring(0,idx);
+        if(idx != -1){
+
+            String driverName = ParseUtil.getDriverName(sql);
+            if(driverName != null){
+
+                SSMetaData.updateSSMetaData(driverName,database,table, "");
+                return new ParsedDriverSql(driverName, preDriver);
             }
-        }else if(optionsMap.containsKey("transaction")){
+        }else{
 
-            if(optionsMap.get("transaction").equalsIgnoreCase("true")) {
-
-                ssOptions.put(SupersqlOptionKey.DRIVER_NAME, SupersqlOptionValue.hive);
-                driversql.append("STORED AS ORC");
-                SSMetaData.updateSSMetaData(ssOptions.get(SupersqlOptionKey.DRIVER_NAME),database,table);
-                return new ParsedDriverSql(ssOptions.get(SupersqlOptionKey.DRIVER_NAME), driversql.toString());
-            }
+            return null;
         }
         return null;
     }
@@ -364,6 +426,9 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
             String database = conid2Db.get(statement.getId());
             return processShow(database, sql);
+        }else if(sql.startsWith("desc") || sql.startsWith("describe")){
+
+            return processDesc(conid2Db,statement,sql);
         }
 
         try {
@@ -401,6 +466,24 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             return ResultSetUtil.convertTable(driverInfos);
         }
         return null;
+    }
+
+    private static SupersqlResultSet processDesc(Map<Integer, String> conid2Db, SupersqlStatement statement, String sql){
+
+
+        String dbtb[] = ParseUtil.getDbAndTable(sql);
+        String database = dbtb.length==2 ? dbtb[0] : conid2Db.get(statement.getId());
+        String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
+
+        Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
+        ResultSet resultSet = null;
+        try {
+            Statement driverStatement = connection.createStatement();
+            resultSet = driverStatement.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ResultSetUtil.convertResultSet(resultSet);
     }
 
     @Override

@@ -53,6 +53,13 @@ public class ConnectionPool {
 
     public static Connection getConnection(String driverName){
 
-        return pool.get(driverName).get(0);
+        List<Connection> cons = pool.get(driverName);
+        if(cons != null){
+
+            return pool.get(driverName).get(0);
+        }else{
+
+            return null;
+        }
     }
 }
