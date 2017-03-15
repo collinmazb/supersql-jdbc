@@ -160,7 +160,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
         //TODO synchronized
         int conId = this.id.incrementAndGet();
-        conid2Db.put(new Integer(conId), database);
+        conid2Db.put(new Integer(conId), database.toLowerCase());
         return new SupersqlConnection(conId);
     }
 
@@ -425,7 +425,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         if(sql.startsWith("show")){
 
             String database = conid2Db.get(statement.getId());
-            return processShow(database, sql);
+            return processShow(statement, database, sql, conid2Db);
         }else if(sql.startsWith("desc") || sql.startsWith("describe")){
 
             return processDesc(conid2Db,statement,sql);
@@ -454,7 +454,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         return ResultSetUtil.convertResultSet(resultSet);
     }
 
-    private static SupersqlResultSet processShow(String database, String sql) {
+    private static SupersqlResultSet processShow(SupersqlStatement statement, String database, String sql, Map<Integer, String> conid2Db) {
 
         if(sql.equalsIgnoreCase("show databases")){
 
@@ -464,6 +464,33 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
             List<SSMetaData.DriverInfo> driverInfos = SSMetaData.getDb2DriverInfoMap().get(database);
             return ResultSetUtil.convertTable(driverInfos);
+        }else if(sql.startsWith("show partitions")){
+
+            String dbtb[] = ParseUtil.getDbAndTable(sql);
+            database = dbtb.length==2 ? dbtb[0] : conid2Db.get(statement.getId());
+            String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
+            Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
+            try {
+                connection.setSchema(database);
+                Statement driverStatement = connection.createStatement();
+                ResultSet resultSet = driverStatement.executeQuery(sql);
+                return ResultSetUtil.convertResultSet(resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }else if(sql.startsWith("show functions")){
+
+            for(String driver: SSMetaData.supportedDrivers){
+
+                Connection driverCon = ConnectionPool.getConnection(driver);
+                try {
+                    Statement driverStat = driverCon.createStatement();
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
         }
         return null;
     }

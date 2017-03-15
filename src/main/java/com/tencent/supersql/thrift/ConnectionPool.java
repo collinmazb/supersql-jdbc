@@ -16,47 +16,104 @@ import java.util.Map;
  */
 public class ConnectionPool {
 
+
+    static class ConnectionInfo{
+
+        private Connection connection = null;
+        private String url = null;
+
+        public ConnectionInfo(Connection connection, String url) {
+            this.connection = connection;
+            this.url = url;
+        }
+
+        public Connection getConnection() {
+            return connection;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+    }
+
     private static Logger logger  =  Logger.getLogger(ConnectionPool.class);
-    private static Map<String, List<Connection>> pool = new HashMap<>();
+    private static Map<String, List<ConnectionInfo>> pool = new HashMap<>();
     public static void init(){
 
-        List<Connection> prestoCons = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        for(Map.Entry<String, String> entry: Config.drivers.entrySet()){
 
-            try {
-                Connection con = DriverManager.getConnection("jdbc:presto://localhost:8081/hive", "test", null);
-                prestoCons.add(con);
-                logger.info("one presto connection created");
-            } catch (SQLException e) {
-                e.printStackTrace();
+            String driverName = entry.getKey();
+            String values[] = entry.getValue().split(",");
+            String driverUrl = values[0];
+            String userName = values[1];
+            String password = values[2].equalsIgnoreCase("null") ? null : values[2];
+            List<ConnectionInfo> connectionInfos = new ArrayList<>();
+            for (int i = 0; i < Config.connectionPoolSize; i++) {
+
+                try {
+                    Connection con = DriverManager.getConnection(driverUrl, userName, password);
+                    connectionInfos.add(new ConnectionInfo(con, driverUrl));
+                    logger.info("one connection to "  + driverName + " created");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
+
+            pool.put(driverName, connectionInfos);
         }
 
-        pool.put("presto", prestoCons);
 
-        ////////////////////////////////////////
-        List<Connection> sparksqlCons = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+//        List<ConnectionInfo> prestoCons = new ArrayList<>();
+//        for (int i = 0; i < Config.connectionPoolSize; i++) {
+//
+//            try {
+//                String prestoUrl = "jdbc:presto://localhost:8081/hive";
+//                Connection con = DriverManager.getConnection(prestoUrl, "test", null);
+//                prestoCons.add(new ConnectionInfo(con, prestoUrl));
+//                logger.info("one presto connection created");
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        pool.put("presto", prestoCons);
+//
+//        ////////////////////////////////////////
+//        List<ConnectionInfo> hiveCons = new ArrayList<>();
+//        for (int i = 0; i < Config.connectionPoolSize; i++) {
+//
+//            try {
+//                String hiveUrl = "jdbc:hive2://localhost:10000/default";
+//                Connection con = DriverManager.getConnection(hiveUrl, "waixingren", null);
+//                hiveCons.add(new ConnectionInfo(con, hiveUrl));
+//                logger.info("one hive connection created");
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
-            try {
-                Connection con = DriverManager.getConnection("jdbc:hive2://localhost:10000/default", "waixingren", null);
-                sparksqlCons.add(con);
-                logger.info("one hive connection created");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        pool.put("hive", sparksqlCons);
+//        pool.put("hive", hiveCons);
 
     }
 
     public static Connection getConnection(String driverName){
 
-        List<Connection> cons = pool.get(driverName);
+        List<ConnectionInfo> cons = pool.get(driverName);
         if(cons != null){
 
-            return pool.get(driverName).get(0);
+            return pool.get(driverName).get(0).getConnection();
+        }else{
+
+            return null;
+        }
+    }
+
+    public static String getConnectionUrl(String driverName){
+
+        List<ConnectionInfo> cons = pool.get(driverName);
+        if(cons != null){
+
+            return pool.get(driverName).get(0).getUrl();
         }else{
 
             return null;

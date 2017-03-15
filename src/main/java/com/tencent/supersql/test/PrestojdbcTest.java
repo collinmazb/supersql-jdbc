@@ -5,7 +5,7 @@ import com.tencent.supersql.jdbc.ParseUtil;
 /**
  * Created by waixingren on 3/7/17.
  */
-public class test {
+public class PrestojdbcTest {
 
     public static void main(String[] args) {
 

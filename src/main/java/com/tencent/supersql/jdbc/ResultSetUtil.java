@@ -108,7 +108,7 @@ public class ResultSetUtil {
         List<SupersqlResultSetMetaDataPart> partlist = new ArrayList<SupersqlResultSetMetaDataPart>();
 
 
-        int fieldCount = 3;
+        int fieldCount = 4;
         //for data
         for (SSMetaData.DriverInfo driverInfo  : driverInfos) {
 
@@ -128,6 +128,9 @@ public class ResultSetUtil {
                     case 3:
                         rawVal = string_val(driverInfo.getDriverName());
                         break;
+                    case 4:
+                        rawVal = string_val(driverInfo.getDriverUrl());
+                        break;
                 }
                 values.add(new SupersqlValue(false, rawVal));
             }
@@ -135,7 +138,7 @@ public class ResultSetUtil {
         }
 
         //for meta
-        String str[] = {"Tablename", "Database", "Driver"};
+        String str[] = {"Tablename", "Database", "Driver", "DriverUrl"};
         for (int i = 1; i < fieldCount + 1; i++) {
 
             String catalogName = "";

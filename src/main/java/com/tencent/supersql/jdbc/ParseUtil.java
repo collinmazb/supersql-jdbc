@@ -30,6 +30,20 @@ public class ParseUtil {
             String postdesc = sql2.substring(sql2.indexOf(" "), sql2.length()).trim();
             String str[] = postdesc.split("\\.");
             return str;
+        }else if(sql2.startsWith("show partitions")){
+
+            String postPartitions = sql2.substring(sql2.indexOf("show partitions")+15, sql2.length()).trim();
+            int spaceIdx = postPartitions.indexOf(" ");
+            String dbtbStr = null;
+            if(spaceIdx == -1){
+
+                dbtbStr = postPartitions;
+            }else{
+
+                dbtbStr = postPartitions.substring(postPartitions.indexOf(" "));
+            }
+            String dbtb[] = dbtbStr.split("\\.");
+            return dbtb;
         }
         return null;
 

@@ -3,7 +3,6 @@ package com.tencent.supersql.thrift;
 import com.tencent.supersql.gen.SupersqlConnectionService;
 import com.tencent.supersql.jdbc.SSqlSerivceImpl;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.server.TServer;
@@ -19,18 +18,20 @@ public class SupersqlServer {
 
     public static void main(String[] args) {
 
-        PropertyConfigurator.configure( "conf/log4j.properties");
+
         Logger logger  =  Logger.getLogger(SupersqlServer.class);
 
+        Config.initConf();
+        Config.initDrivers();
         ConnectionPool.init();
         SSMetaData.initSSMetaData();
 
         try {
-            TServerSocket serverTransport = new TServerSocket(7911);
+            TServerSocket serverTransport = new TServerSocket(Config.supersqlServerPort);
             TBinaryProtocol.Factory proFactory = new TBinaryProtocol.Factory();
             TProcessor processor = new SupersqlConnectionService.Processor(new SSqlSerivceImpl());
             TServer server = new TSimpleServer(new TServer.Args(serverTransport).processor(processor));
-            System.out.println("========Start Supersql thrift server on port 7911=======");
+            System.out.println("========Start Supersql thrift server on port " + Config.supersqlServerPort + " =======");
             server.serve();
         } catch (TTransportException e) {
             e.printStackTrace();

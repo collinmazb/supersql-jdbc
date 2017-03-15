@@ -60,6 +60,9 @@ public class SSMetaData {
             return driverTableName;
         }
 
+        public String getDriverUrl() {
+            return driverUrl;
+        }
     }
 
     public static String getDriverName(String database, String tableName) {
@@ -84,20 +87,10 @@ public class SSMetaData {
 
     public static void initSSMetaData() {
 
-//        String superSqlDefault = "default";
-//        List<DriverInfo> driverInfos = new ArrayList<>();
-//        driverInfos.add(new DriverInfo("presto", "default", "tb11"));
-//        driverInfos.add(new DriverInfo("presto", "default", "tb12"));
-//
-//        db2DriverInfoMap.put(superSqlDefault, driverInfos);
-//
-//        updateSSMetaData("sparksql", superSqlDefault, "region", "jdbc:sparksql://localhost:10000");
-//        updateSSMetaData("hive", superSqlDefault, "orders", "jdbc:hive2://localhost:10001");
-//        updateSSMetaData("hive", superSqlDefault, "lineitems","jdbc:hive2://localhost:10001");
-
-        for (String driver : supportedDrivers) {
+        for (String driver : Config.drivers.keySet()) {
 
             Connection con = ConnectionPool.getConnection(driver);
+            String connectionUrl = ConnectionPool.getConnectionUrl(driver);
             if (con == null) {
 
                 continue;
@@ -119,12 +112,12 @@ public class SSMetaData {
                     if (db2DriverInfoMap.containsKey(databaseName)) {
 
                         List<DriverInfo> driverInfos = db2DriverInfoMap.get(databaseName);
-                        fillMap(driverInfos, tableResultSet, driver, databaseName);
+                        fillMap(driverInfos, tableResultSet, driver, databaseName, connectionUrl);
                         db2DriverInfoMap.put(databaseName, driverInfos);
                     } else {
 
                         List<DriverInfo> driverInfos = new ArrayList<>();
-                        fillMap(driverInfos, tableResultSet, driver, databaseName);
+                        fillMap(driverInfos, tableResultSet, driver, databaseName, connectionUrl);
                         db2DriverInfoMap.put(databaseName, driverInfos);
                     }
                 }
@@ -135,7 +128,7 @@ public class SSMetaData {
         }
     }
 
-    private static void fillMap(List<DriverInfo> driverInfos, ResultSet tableResultSet, String driver, String databaseName) throws SQLException {
+    private static void fillMap(List<DriverInfo> driverInfos, ResultSet tableResultSet, String driver, String databaseName, String connectionUrl) throws SQLException {
 
         while (tableResultSet.next()) {
 
@@ -143,7 +136,7 @@ public class SSMetaData {
 
                 driverInfos = new ArrayList<>();
             }
-            driverInfos.add(new DriverInfo(driver, databaseName, tableResultSet.getString(1), null));
+            driverInfos.add(new DriverInfo(driver, databaseName, tableResultSet.getString(1), connectionUrl));
         }
     }
 
