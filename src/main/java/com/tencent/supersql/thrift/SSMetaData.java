@@ -1,5 +1,6 @@
 package com.tencent.supersql.thrift;
 
+import com.facebook.presto.jdbc.PrestoConnection;
 import org.apache.commons.collections.map.HashedMap;
 
 import java.sql.Connection;
@@ -97,7 +98,8 @@ public class SSMetaData {
             }
             try {
                 Statement statement = con.createStatement();
-                ResultSet dbresultSet = statement.executeQuery("show databases");
+                String showDBStr = con instanceof PrestoConnection ? "show schemas" : "show databases";
+                ResultSet dbresultSet = statement.executeQuery(showDBStr);
                 while (dbresultSet.next()) {
 
                     String databaseName = dbresultSet.getString(1);

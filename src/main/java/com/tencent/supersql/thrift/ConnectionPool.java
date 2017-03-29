@@ -40,12 +40,13 @@ public class ConnectionPool {
     private static Map<String, List<ConnectionInfo>> pool = new HashMap<>();
     public static void init(){
 
+//        Class.forName("org.apache.phoenix.jdbc.PhoenixDriver")
         for(Map.Entry<String, String> entry: Config.drivers.entrySet()){
 
             String driverName = entry.getKey();
             String values[] = entry.getValue().split(",");
             String driverUrl = values[0];
-            String userName = values[1];
+            String userName = values[1].equalsIgnoreCase("null") ? null : values[1];
             String password = values[2].equalsIgnoreCase("null") ? null : values[2];
             List<ConnectionInfo> connectionInfos = new ArrayList<>();
             for (int i = 0; i < Config.connectionPoolSize; i++) {

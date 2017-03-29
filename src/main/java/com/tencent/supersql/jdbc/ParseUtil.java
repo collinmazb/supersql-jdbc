@@ -44,6 +44,20 @@ public class ParseUtil {
             }
             String dbtb[] = dbtbStr.split("\\.");
             return dbtb;
+        }else if(sql2.startsWith("show columns")){
+
+            String postPartitions = sql2.substring(sql2.indexOf("show partitions")+18, sql2.length()).trim();
+            int spaceIdx = postPartitions.indexOf(" ");
+            String dbtbStr = null;
+            if(spaceIdx == -1){
+
+                dbtbStr = postPartitions;
+            }else{
+
+                dbtbStr = postPartitions.substring(postPartitions.indexOf(" "));
+            }
+            String dbtb[] = dbtbStr.split("\\.");
+            return dbtb;
         }
         return null;
 

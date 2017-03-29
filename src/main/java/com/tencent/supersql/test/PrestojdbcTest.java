@@ -2,6 +2,9 @@ package com.tencent.supersql.test;
 
 import com.tencent.supersql.jdbc.ParseUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by waixingren on 3/7/17.
  */
@@ -9,9 +12,8 @@ public class PrestojdbcTest {
 
     public static void main(String[] args) {
 
-//        String sql = "creat table db1.user(id int, name string)";
-        String sql = "select * from db1.nation where nationkey>100";
-        String str[] = ParseUtil.getDbAndTable(sql);
+        String str[] = new String[2];
+        System.out.println(str[0]);
 
     }
 }

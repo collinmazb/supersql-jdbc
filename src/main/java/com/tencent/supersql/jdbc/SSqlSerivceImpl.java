@@ -25,7 +25,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     Logger logger  =  Logger.getLogger(SSqlSerivceImpl.class);
     private Map<String, Connection> allLinks = new HashMap<String, Connection>();
     private Connection currentLink;
-    private Map<Integer, String> conid2Db = new HashMap<>();
+    private Map<Integer, String[]> conid2DbDr = new HashMap<>();
     private Map<Integer, ConnectionInfo> id2Links = new HashMap<>();
     private String currentLinkName;
     private Statement currentStatement;
@@ -160,7 +160,10 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
         //TODO synchronized
         int conId = this.id.incrementAndGet();
-        conid2Db.put(new Integer(conId), database.toLowerCase());
+//        conid2Db.put(new Integer(conId), database.toLowerCase());
+        String dbdr[] = new String[2];
+        dbdr[0] = database;
+        conid2DbDr.put(new Integer(conId), dbdr);
         return new SupersqlConnection(conId);
     }
 
@@ -296,12 +299,29 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
     @Override
     public boolean statement_execute(SupersqlStatement statement, String sql) throws SupersqlException, TException {
 
-        if(sql.startsWith("use")){
+        if(sql.startsWith("use driver")) {
+
+            String dbdr[] = conid2DbDr.get(statement.getId());
+            String database = dbdr[0];
+            if (database == null) {
+
+                return false;
+            } else {
+
+                String driver = sql.split(" ")[2];
+                dbdr[1] = driver;
+                conid2DbDr.put(statement.getId(), dbdr);
+                return true;
+            }
+        }else if(sql.startsWith("use")){
 
             String database = sql.split(" ")[1];
-            conid2Db.put(statement.getId(), database);
+            String dbdr[] = conid2DbDr.get(statement.getId());
+            dbdr[0] = database;
+            conid2DbDr.put(statement.getId(), dbdr);
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -396,7 +416,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
         sql = sql.toLowerCase().trim();
         String dbtb[] = ParseUtil.getDbAndTable(sql);
-        String database = dbtb.length==2 ? dbtb[0] : conid2Db.get(supersqlStatement.getId());
+        String database = dbtb.length==2 ? dbtb[0] : conid2DbDr.get(supersqlStatement.getId())[0];
         String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
 
         int idx = sql.indexOf(" driver ");
@@ -424,17 +444,18 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
 
         if(sql.startsWith("show")){
 
-            String database = conid2Db.get(statement.getId());
-            return processShow(statement, database, sql, conid2Db);
+            String database = conid2DbDr.get(statement.getId())[0];
+            String driver = conid2DbDr.get(statement.getId())[1];
+            return processShow(statement, database,sql,conid2DbDr);
         }else if(sql.startsWith("desc") || sql.startsWith("describe")){
 
-            return processDesc(conid2Db,statement,sql);
+            return processDesc(conid2DbDr,statement,sql);
         }
 
         try {
 
             String str[] = ParseUtil.getDbAndTable(sql);
-            String database = str.length==2 ? str[0] : conid2Db.get(statement.getId());
+            String database = str.length==2 ? str[0] : conid2DbDr.get(statement.getId())[0];
             String table = str.length==2 ? str[1] : str[0];
             Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
             if(connection instanceof PrestoConnection){
@@ -454,7 +475,7 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
         return ResultSetUtil.convertResultSet(resultSet);
     }
 
-    private static SupersqlResultSet processShow(SupersqlStatement statement, String database, String sql, Map<Integer, String> conid2Db) {
+    private static SupersqlResultSet processShow(SupersqlStatement statement, String database, String sql, Map<Integer, String[]> conid2DbDr) {
 
         if(sql.equalsIgnoreCase("show databases")){
 
@@ -462,12 +483,19 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
             return ResultSetUtil.convertDB(dbs);
         }else if(sql.equalsIgnoreCase("show tables")){
 
-            List<SSMetaData.DriverInfo> driverInfos = SSMetaData.getDb2DriverInfoMap().get(database);
+            List<SSMetaData.DriverInfo> driverInfos = null;
+            String driver = conid2DbDr.get(statement.getId())[1];
+            driverInfos = SSMetaData.getDb2DriverInfoMap().get(database);
+            if(driver != null){
+
+                List<SSMetaData.DriverInfo> filteredDriverInfos = filterWithDriver(driverInfos, driver);
+                return ResultSetUtil.convertTable(filteredDriverInfos);
+            }
             return ResultSetUtil.convertTable(driverInfos);
         }else if(sql.startsWith("show partitions")){
 
             String dbtb[] = ParseUtil.getDbAndTable(sql);
-            database = dbtb.length==2 ? dbtb[0] : conid2Db.get(statement.getId());
+            database = dbtb.length==2 ? dbtb[0] : conid2DbDr.get(statement.getId())[0];
             String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
             Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
             try {
@@ -491,15 +519,43 @@ public  class SSqlSerivceImpl implements SupersqlConnectionService.Iface{
                 }
 
             }
+        }else if(sql.startsWith("show columns")){
+
+            String dbtb[] = ParseUtil.getDbAndTable(sql);
+            database = dbtb.length==2 ? dbtb[0] : conid2DbDr.get(statement.getId())[0];
+            String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
+            Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
+            try {
+                connection.setSchema(database);
+                Statement driverStatement = connection.createStatement();
+                ResultSet resultSet = driverStatement.executeQuery(sql);
+                return ResultSetUtil.convertResultSet(resultSet);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return null;
     }
 
-    private static SupersqlResultSet processDesc(Map<Integer, String> conid2Db, SupersqlStatement statement, String sql){
+    private static List<SSMetaData.DriverInfo> filterWithDriver(List<SSMetaData.DriverInfo> driverInfos, String driverName){
+
+        List<SSMetaData.DriverInfo> newList = new ArrayList<>();
+        for(SSMetaData.DriverInfo driverInfo : driverInfos){
+
+            if(driverInfo.getDriverName().equalsIgnoreCase(driverName)){
+
+                newList.add(driverInfo);
+            }
+        }
+
+        return newList;
+
+    }
+    private static SupersqlResultSet processDesc(Map<Integer, String[]> conid2DbDr, SupersqlStatement statement, String sql){
 
 
         String dbtb[] = ParseUtil.getDbAndTable(sql);
-        String database = dbtb.length==2 ? dbtb[0] : conid2Db.get(statement.getId());
+        String database = dbtb.length==2 ? dbtb[0] : conid2DbDr.get(statement.getId())[0];
         String table = dbtb.length==2 ? dbtb[1] : dbtb[0];
 
         Connection connection = ConnectionPool.getConnection(SSMetaData.getDriverName(database, table));
